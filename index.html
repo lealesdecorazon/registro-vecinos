@@ -179,6 +179,7 @@
 
 <nav class="topnav">
   <div class="nav-brand"><span>Unidad Básica - Leales de Corazón</span></div>
+<button class="nav-mobile-toggle" onclick="toggleNavMobile()">☰</button>
   <div class="nav-tabs" id="navTabs">
     <button class="nav-tab active" onclick="showPage('inicio')">🏠 Inicio</button>
     <button class="nav-tab" onclick="showPage('contactos')">👥 Contactos</button>
@@ -392,6 +393,11 @@ function showPage(name) {
   document.getElementById('page-' + name).classList.add('active');
   document.querySelectorAll('.nav-tab').forEach(t => { if (t.textContent.toLowerCase().includes(name.slice(0,4))) t.classList.add('active'); });
 }
+
+function toggleMobileNav() {
+      document.getElementById('navTabs').classList.toggle('open');
+    }
+
 
 /* =========================================================
  * TOAST / MODALES GENÉRICOS
