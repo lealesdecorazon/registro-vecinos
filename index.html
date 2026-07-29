@@ -168,9 +168,12 @@
   #loadingOverlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,119,182,0.9); z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; font-family:'Barlow',sans-serif; }
 
   @media(max-width:640px) {
-    .nav-tabs { display:none; }
+    .topnav { padding:0 10px; gap:6px; }
+    .nav-brand { font-size:0.8rem; gap:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .nav-brand .escudo { font-size:1.2rem; }
+    .nav-tabs { gap:2px; }
+    .nav-tab { padding:6px 8px; font-size:0.78rem; }
     .form-grid, .match-grid, .ficha-datos { grid-template-columns:1fr; }
-    .topnav { padding:0 14px; }
     .app-page { padding:14px 10px 40px; }
   }
 </style>
@@ -179,7 +182,6 @@
 
 <nav class="topnav">
   <div class="nav-brand"><span>Unidad Básica - Leales de Corazón</span></div>
-<button class="nav-mobile-toggle" onclick="toggleNavMobile()">☰</button>
   <div class="nav-tabs" id="navTabs">
     <button class="nav-tab active" onclick="showPage('inicio')">🏠 Inicio</button>
     <button class="nav-tab" onclick="showPage('contactos')">👥 Contactos</button>
@@ -393,11 +395,6 @@ function showPage(name) {
   document.getElementById('page-' + name).classList.add('active');
   document.querySelectorAll('.nav-tab').forEach(t => { if (t.textContent.toLowerCase().includes(name.slice(0,4))) t.classList.add('active'); });
 }
-
-function toggleMobileNav() {
-      document.getElementById('navTabs').classList.toggle('open');
-    }
-
 
 /* =========================================================
  * TOAST / MODALES GENÉRICOS
