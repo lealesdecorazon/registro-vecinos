@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>UB · Gestión de Contactos y Atención Territorial</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --celeste: #009BDF;
+    --celeste-dark: #0077B6;
+    --celeste-light: #5BC4F5;
+    --celeste-pale: #D6F0FB;
+    --celeste-xpale: #EDF8FD;
+    --white: #FFFFFF;
+    --gray-50: #F8FAFC;
+    --gray-100: #F0F4F8;
+    --gray-200: #E2E8F0;
+    --gray-300: #CBD5E1;
+    --gray-400: #94A3B8;
+    --gray-600: #475569;
+    --gray-700: #334155;
+    --gray-900: #0F172A;
+    --danger: #EF4444;
+    --success: #10B981;
+    --warning: #F59E0B;
+    --shadow: 0 4px 24px rgba(0, 155, 223, 0.10);
+    --shadow-md: 0 8px 32px rgba(0, 155, 223, 0.15);
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { font-family:'Barlow', sans-serif; background:var(--gray-50); color:var(--gray-900); min-height:100vh; }
+
+  /* NAV */
+  .topnav {
+    background: var(--celeste-dark); color:white; display:flex; align-items:center; justify-content:space-between;
+    padding:0 24px; height:56px; position:sticky; top:0; z-index:1000; box-shadow:0 2px 12px rgba(0,119,182,0.3);
+  }
+  .nav-brand { display:flex; align-items:center; gap:10px; font-family:'Barlow Condensed', sans-serif; font-weight:800; font-size:1.15rem; letter-spacing:0.5px; }
+  .nav-brand .escudo { font-size:1.4rem; }
+  .nav-tabs { display:flex; gap:4px; }
+  .nav-tab { background:none; border:none; color:rgba(255,255,255,0.7); padding:8px 14px; border-radius:6px; cursor:pointer; font-family:'Barlow', sans-serif; font-weight:500; font-size:0.85rem; transition:all .2s; white-space:nowrap; }
+  .nav-tab:hover { background:rgba(255,255,255,0.12); color:white; }
+  .nav-tab.active { background:rgba(255,255,255,0.2); color:white; }
+  .nav-mobile-toggle { display:none; background:none; border:none; color:white; font-size:1.4rem; cursor:pointer; }
+
+  /* MAIN */
+  .app-page { display:none; padding:20px; max-width:1200px; margin:0 auto; }
+  .app-page.active { display:block; }
+
+  /* HERO */
+  .hero { background:linear-gradient(135deg, var(--celeste-dark) 0%, var(--celeste) 60%, var(--celeste-light) 100%); border-radius:var(--radius); padding:32px; color:white; margin-bottom:24px; position:relative; overflow:hidden; }
+  .hero::before { content:''; position:absolute; top:-40px; right:-40px; width:200px; height:200px; background:rgba(255,255,255,0.06); border-radius:50%; }
+  .hero::after { content:''; position:absolute; bottom:-60px; left:30%; width:280px; height:280px; background:rgba(255,255,255,0.04); border-radius:50%; }
+  .hero-title { font-family:'Barlow Condensed', sans-serif; font-weight:800; font-size:2.2rem; line-height:1.1; margin-bottom:6px; }
+  .hero-sub { opacity:.85; font-size:1rem; margin-bottom:24px; }
+  .stats-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr)); gap:14px; position:relative; z-index:1; }
+  .stat-card { background:rgba(255,255,255,0.15); backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,0.25); border-radius:var(--radius-sm); padding:16px; text-align:center; }
+  .stat-card .num { font-family:'Barlow Condensed', sans-serif; font-size:2.2rem; font-weight:800; line-height:1; }
+  .stat-card .lbl { font-size:.78rem; opacity:.85; margin-top:4px; font-weight:500; }
+
+  /* CARDS */
+  .card { background:white; border-radius:var(--radius); box-shadow:var(--shadow); padding:20px; margin-bottom:20px; }
+  .card-title { font-family:'Barlow Condensed', sans-serif; font-weight:700; font-size:1.1rem; color:var(--celeste-dark); margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+
+  /* BOTONES */
+  .btn { border:none; border-radius:var(--radius-sm); padding:10px 18px; font-family:'Barlow', sans-serif; font-weight:600; font-size:.88rem; cursor:pointer; transition:.15s; }
+  .btn-primary { background:var(--celeste); color:white; }
+  .btn-primary:hover { background:var(--celeste-dark); }
+  .btn-secondary { background:var(--gray-100); color:var(--gray-700); border:1px solid var(--gray-300); }
+  .btn-secondary:hover { background:var(--gray-200); }
+  .btn-outline { background:transparent; border:1.5px solid var(--celeste); color:var(--celeste-dark); padding:7px 14px; border-radius:var(--radius-sm); font-weight:600; cursor:pointer; font-size:.82rem; }
+  .btn-outline:hover { background:var(--celeste-xpale); }
+  .btn-success { background:var(--success); color:white; padding:7px 14px; border-radius:var(--radius-sm); font-weight:600; cursor:pointer; font-size:.82rem; border:none; }
+  .btn-success:hover { filter:brightness(.92); }
+  .btn-hero { width:100%; padding:16px; font-size:1rem; letter-spacing:.4px; margin-bottom:22px; box-shadow:var(--shadow-md); }
+  .btn:disabled { opacity:.6; cursor:not-allowed; }
+
+  /* SEGUIMIENTOS - CARDS */
+  .cards-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(270px,1fr)); gap:14px; }
+  .seg-card { background:white; border-radius:var(--radius); box-shadow:var(--shadow); padding:16px 18px; border-left:5px solid var(--warning); }
+  .seg-card .seg-nombre { font-weight:700; font-size:.98rem; color:var(--gray-900); }
+  .seg-card .seg-titulo { font-size:.88rem; margin:6px 0; color:var(--gray-700); }
+  .seg-card .seg-meta { font-size:.76rem; color:var(--gray-400); margin-bottom:12px; }
+  .seg-card .seg-meta span { display:block; }
+  .seg-card .seg-actions { display:flex; gap:8px; flex-wrap:wrap; }
+
+  .empty-state { text-align:center; padding:30px; color:var(--gray-400); background:white; border-radius:var(--radius); }
+  .loader { padding:20px; text-align:center; color:var(--gray-400); }
+
+  /* BUSCADOR / TABLA */
+  .search-bar input { width:100%; padding:12px 16px; border-radius:var(--radius-sm); border:1.5px solid var(--gray-200); font-size:.9rem; background:white; font-family:'Barlow',sans-serif; }
+  .search-bar input:focus { outline:none; border-color:var(--celeste); }
+  table.tabla-vecinos { width:100%; border-collapse:collapse; font-size:.85rem; }
+  table.tabla-vecinos thead { background:var(--celeste-dark); color:white; }
+  table.tabla-vecinos th { text-align:left; padding:11px 14px; font-weight:600; font-size:.78rem; letter-spacing:.3px; }
+  table.tabla-vecinos td { padding:10px 14px; border-bottom:1px solid var(--gray-100); }
+  table.tabla-vecinos tbody tr { cursor:pointer; transition:.1s; }
+  table.tabla-vecinos tbody tr:hover { background:var(--celeste-xpale); }
+  .badge { padding:3px 9px; border-radius:20px; font-size:.72rem; font-weight:700; background:#E6F7EC; color:var(--success); }
+  .badge-no { background:var(--gray-100); color:var(--gray-400); }
+
+  /* MODALES */
+  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(15,23,42,0.55); z-index:2000; align-items:flex-start; justify-content:center; padding:40px 16px; overflow-y:auto; }
+  .modal-overlay.open { display:flex; }
+  .modal-box { background:white; border-radius:var(--radius); width:100%; max-width:540px; box-shadow:0 20px 60px rgba(0,0,0,.25); animation:pop .15s ease-out; }
+  .modal-lg { max-width:760px; }
+  .modal-sm { max-width:420px; }
+  @keyframes pop { from{transform:translateY(10px); opacity:0;} to{transform:translateY(0); opacity:1;} }
+  .modal-header { display:flex; align-items:center; justify-content:space-between; padding:18px 22px; border-bottom:1px solid var(--gray-100); }
+  .modal-header h3 { margin:0; font-size:1.1rem; font-family:'Barlow Condensed',sans-serif; font-weight:700; color:var(--celeste-dark); }
+  .modal-close { background:none; border:none; font-size:22px; cursor:pointer; color:var(--gray-400); }
+  .modal-close:hover { color:var(--danger); }
+  .modal-body { padding:22px; max-height:75vh; overflow-y:auto; }
+
+  /* FORMULARIOS */
+  .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .form-field { display:flex; flex-direction:column; gap:5px; font-size:.82rem; }
+  .form-field.full { grid-column:1/-1; }
+  .form-field label { font-weight:600; color:var(--gray-700); }
+  .form-field input, .form-field select, .form-field textarea { padding:9px 12px; border-radius:var(--radius-sm); border:1.5px solid var(--gray-200); font-size:.85rem; font-family:inherit; }
+  .form-field input:focus, .form-field select:focus, .form-field textarea:focus { outline:none; border-color:var(--celeste); }
+  .step-label { font-size:.72rem; color:var(--celeste-dark); font-weight:700; letter-spacing:.5px; text-transform:uppercase; margin-bottom:14px; }
+  .wizard-step { display:none; }
+  .wizard-step.active { display:block; }
+  .wizard-actions { display:flex; justify-content:flex-end; gap:10px; margin-top:20px; }
+  .wizard-actions.center { justify-content:center; }
+
+  /* CRUCE DE DATOS */
+  .cruce-alert { padding:13px 16px; border-radius:var(--radius-sm); margin-bottom:14px; font-size:.88rem; font-weight:600; }
+  .cruce-alert.warning { background:#FEF3E2; color:#B45309; border:1px solid #FDE0A8; }
+  .cruce-alert.info { background:var(--celeste-xpale); color:var(--celeste-dark); border:1px solid var(--celeste-pale); }
+  .cruce-alert.success { background:#E6F7EC; color:#0F7A3D; border:1px solid #B7E6C5; }
+  .match-box { background:var(--gray-50); border:1px solid var(--gray-200); border-radius:var(--radius-sm); padding:14px 16px; margin-bottom:14px; }
+  .match-box h4 { margin:0 0 8px; font-size:.75rem; color:var(--celeste-dark); text-transform:uppercase; letter-spacing:.4px; }
+  .match-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px 16px; font-size:.82rem; }
+  .match-grid div span { display:block; color:var(--gray-400); font-size:.68rem; }
+  .resumen-box { background:var(--gray-50); border-radius:var(--radius-sm); padding:16px; font-size:.85rem; }
+  .resumen-box .fila { display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px dashed var(--gray-200); }
+  .resumen-box .fila:last-child { border-bottom:none; }
+  .resumen-box .fila span:first-child { color:var(--gray-400); }
+  .resumen-box .fila span:last-child { font-weight:600; text-align:right; }
+
+  /* FICHA VECINO */
+  .ficha-datos { display:grid; grid-template-columns:1fr 1fr; gap:10px 20px; margin-bottom:18px; font-size:.85rem; }
+  .ficha-datos div span { display:block; color:var(--gray-400); font-size:.68rem; text-transform:uppercase; }
+  .ficha-datos div b { font-size:.88rem; }
+  .ficha-tabs { display:flex; gap:6px; margin-bottom:14px; border-bottom:2px solid var(--gray-100); }
+  .ficha-tab-btn { background:none; border:none; padding:9px 12px; cursor:pointer; font-weight:600; color:var(--gray-400); font-size:.82rem; border-bottom:2px solid transparent; margin-bottom:-2px; }
+  .ficha-tab-btn.active { color:var(--celeste-dark); border-bottom-color:var(--celeste); }
+  .ficha-panel { display:none; }
+  .ficha-panel.active { display:block; }
+  .hist-item { padding:10px 12px; border-radius:var(--radius-sm); background:var(--gray-50); margin-bottom:8px; font-size:.82rem; }
+  .hist-item .hist-top { display:flex; justify-content:space-between; font-weight:600; color:var(--gray-900); }
+  .hist-item .hist-meta { color:var(--gray-400); font-size:.72rem; margin-top:2px; }
+  .seg-item { display:flex; justify-content:space-between; align-items:center; padding:10px 12px; border-radius:var(--radius-sm); background:var(--gray-50); margin-bottom:8px; font-size:.82rem; }
+  .estado-pill { padding:3px 10px; border-radius:20px; font-size:.7rem; font-weight:700; }
+  .estado-pill.PENDIENTE { background:#FEF3E2; color:#B45309; }
+  .estado-pill.RESUELTO { background:#E6F7EC; color:#0F7A3D; }
+
+  /* TOAST */
+  .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--gray-900); color:white; padding:12px 22px; border-radius:var(--radius-sm); font-size:.85rem; box-shadow:0 10px 30px rgba(0,0,0,.25); opacity:0; pointer-events:none; transition:.25s; z-index:3000; }
+  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+  /* LOADING OVERLAY */
+  #loadingOverlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,119,182,0.9); z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; font-family:'Barlow',sans-serif; }
+
+  @media(max-width:640px) {
+    .nav-tabs { display:none; }
+    .form-grid, .match-grid, .ficha-datos { grid-template-columns:1fr; }
+    .topnav { padding:0 14px; }
+    .app-page { padding:14px 10px 40px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="nav-brand"><span>Unidad Básica - Leales de Corazón</span></div>
+  <div class="nav-tabs" id="navTabs">
+    <button class="nav-tab active" onclick="showPage('inicio')">🏠 Inicio</button>
+    <button class="nav-tab" onclick="showPage('contactos')">👥 Contactos</button>
+  </div>
+</nav>
+
+<!-- ===================== PAGE: INICIO ===================== -->
+<div class="app-page active" id="page-inicio">
+
+  <button class="btn btn-primary btn-hero" onclick="abrirWizardNuevoContacto()">+ CARGAR NUEVO CONTACTO</button>
+
+  <div class="card">
+    <div class="card-title">📋 Pendientes</div>
+    <div id="listaSeguimientos" class="cards-grid"></div>
+    <div id="sinSeguimientos" class="empty-state" style="display:none;">✓ No hay seguimientos pendientes.</div>
+  </div>
+</div>
+
+<!-- ===================== PAGE: CONTACTOS ===================== -->
+<div class="app-page" id="page-contactos">
+  <div class="card">
+    <div class="card-title">👥 Vecinos y Vecinas</div>
+    <div class="search-bar" style="margin-bottom:14px;">
+      <input type="text" id="buscadorVecinos" placeholder="Buscar por Nombre, Apellido, DNI, Teléfono...">
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="tabla-vecinos" id="tablaVecinos">
+        <thead>
+          <tr><th>Apellido y Nombre</th><th>Teléfono</th></tr>
+        </thead>
+        <tbody id="tbodyVecinos"></tbody>
+      </table>
+      <div id="sinResultados" class="empty-state" style="display:none;">No se encontraron vecinos con ese criterio de búsqueda.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODAL: FICHA DE VECINO ===================== -->
+<div id="modalFicha" class="modal-overlay" onclick="closeIfOutside(event,'modalFicha')">
+  <div class="modal-box modal-lg">
+    <div class="modal-header">
+      <h3 id="fichaNombreTitulo">Ficha del Vecino</h3>
+      <button class="modal-close" onclick="cerrarModal('modalFicha')">&times;</button>
+    </div>
+    <div class="modal-body" id="fichaBody"><div class="loader">Cargando ficha...</div></div>
+  </div>
+</div>
+
+<!-- ===================== MODAL: NUEVO CONTACTO (WIZARD) ===================== -->
+<div id="modalNuevoContacto" class="modal-overlay" onclick="closeIfOutside(event,'modalNuevoContacto')">
+  <div class="modal-box modal-lg">
+    <div class="modal-header">
+      <h3>Cargar Nuevo Contacto</h3>
+      <button class="modal-close" onclick="cerrarModal('modalNuevoContacto')">&times;</button>
+    </div>
+    <div class="modal-body">
+
+      <div id="paso1" class="wizard-step active">
+        <form id="formPaso1" onsubmit="submitPaso1(event)">
+          <div class="form-grid">
+            <div class="form-field"><label>Compañero/a que carga *</label><input type="text" id="f_operador" required></div>
+            <div class="form-field"><label>Nombre del vecino *</label><input type="text" id="f_nombre" required></div>
+            <div class="form-field"><label>Teléfono de contacto *</label><input type="text" id="f_telefono" required></div>
+            <div class="form-field"><label>Apellido</label><input type="text" id="f_apellido"></div>
+            <div class="form-field"><label>DNI</label><input type="text" id="f_dni"></div>
+            <div class="form-field"><label>Dirección</label><input type="text" id="f_direccion"></div>
+            <div class="form-field"><label>Barrio</label><input type="text" id="f_barrio"></div>
+            <div class="form-field"><label>Circuito</label><input type="text" id="f_circuito"></div>
+            <div class="form-field"><label>Comuna</label><input type="text" id="f_comuna"></div>
+            <div class="form-field"><label>Fecha de nacimiento</label><input type="date" id="f_nacimiento"></div>
+            <div class="form-field">
+              <label>Afiliado PJ</label>
+              <select id="f_afiliado"><option value="">-</option><option value="Sí">Sí</option><option value="No">No</option><option value="No sabe">No sabe</option></select>
+            </div>
+            <div class="form-field full"><label>Observaciones</label><textarea id="f_observaciones" rows="2"></textarea></div>
+          </div>
+          <div class="wizard-actions"><button type="submit" class="btn btn-primary">Continuar</button></div>
+        </form>
+      </div>
+
+      <div id="paso2" class="wizard-step">
+        <p class="step-label">Verificación · Coincidencias encontradas</p>
+        <div id="resultadoCruce"></div>
+        <div class="wizard-actions">
+          <button type="button" class="btn btn-secondary" onclick="irAPaso(1)">Volver</button>
+        </div>
+      </div>
+
+      <div id="paso3" class="wizard-step">
+        <p class="step-label">Confirmar y registrar</p>
+        <div id="resumenPaso3" class="resumen-box"></div>
+        <div class="wizard-actions">
+          <!-- El botón "Volver" regresa al paso 1 o 2 según si hubo cruce -->
+          <button type="button" class="btn btn-secondary" id="btnVolverPaso3" onclick="volverDesdePaso3()">Volver</button>
+          <button type="button" class="btn btn-primary" id="btnRegistrarContacto" onclick="registrarContactoWizard()">Registrar Contacto</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODAL: MARCAR RESUELTO ===================== -->
+<div id="modalResuelto" class="modal-overlay" onclick="closeIfOutside(event,'modalResuelto')">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>Marcar seguimiento como resuelto</h3>
+      <button class="modal-close" onclick="cerrarModal('modalResuelto')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-field" style="margin-bottom:12px;"><label>Nombre del compañero/a que resuelve *</label><input type="text" id="resOperador"></div>
+      <div class="form-field"><label>Comentario de resolución</label><textarea id="resComentario" rows="3"></textarea></div>
+      <div class="wizard-actions"><button type="button" class="btn btn-primary" onclick="confirmarResuelto()">Confirmar Resolución</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODAL: ¿GENERAR SEGUIMIENTO? ===================== -->
+<div id="modalPreguntaSeguimiento" class="modal-overlay">
+  <div class="modal-box modal-sm">
+    <div class="modal-header"><h3>Contacto registrado con éxito</h3></div>
+    <div class="modal-body">
+      <p style="font-size:.9rem;color:var(--gray-700);">¿Desea generar un seguimiento para este caso?</p>
+      <div class="wizard-actions center">
+        <button type="button" class="btn btn-secondary" onclick="cerrarPreguntaSeguimiento(false)">NO</button>
+        <button type="button" class="btn btn-primary" onclick="cerrarPreguntaSeguimiento(true)">SÍ</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODAL: TÍTULO DE SEGUIMIENTO ===================== -->
+<div id="modalTituloSeguimiento" class="modal-overlay" onclick="closeIfOutside(event,'modalTituloSeguimiento')">
+  <div class="modal-box modal-sm">
+    <div class="modal-header">
+      <h3>Nuevo seguimiento</h3>
+      <button class="modal-close" onclick="cerrarModal('modalTituloSeguimiento')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-field" style="margin-bottom:12px;"><label>Título o motivo del seguimiento *</label><input type="text" id="tituloSeguimientoInput"></div>
+      <div class="wizard-actions"><button type="button" class="btn btn-primary" onclick="guardarNuevoSeguimiento()">Crear seguimiento</button></div>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+/* =========================================================
+ * CONFIGURACIÓN — pegar acá la URL del Web App (Code.gs) UNA VEZ DESPLEGADO
+ * =======================================================*/
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbx8uHdDb-OYp5wO3n6cv34wO7VlrdSmkdIglt3LN5sBI8vFfQk-3P6j8cw4D0JSES5Ksg/exec';
+
+/* =========================================================
+ * ESTADO EN MEMORIA
+ * =======================================================*/
+let VECINOS = [];
+let HISTORIAL = [];
+let SEGUIMIENTOS = [];
+let wizardState = { idVecinoExistente: null, ultimoContactoRegistrado: null };
+let idSeguimientoAResolver = null;
+let idVecinoActivoEnFicha = null;
+
+/* =========================================================
+ * CARGA INICIAL
+ * =======================================================*/
+async function cargarDatos() {
+  if (!document.getElementById('loadingOverlay')) {
+    const ol = document.createElement('div');
+    ol.id = 'loadingOverlay';
+    ol.innerHTML = '<div style="font-size:1.15rem;font-weight:600;">Cargando datos de la UB</div><div style="font-size:.85rem;margin-top:8px;opacity:.8;">Espere por favor</div>';
+    document.body.prepend(ol);
+  }
+  try {
+    const res = await fetch(SHEETS_URL + '?action=leerDatos');
+    const json = await res.json();
+    if (!json.ok) throw new Error(json.error || 'Error al leer la planilla');
+    VECINOS = json.vecinos || [];
+    HISTORIAL = json.historial || [];
+    SEGUIMIENTOS = json.seguimientos || [];
+    const ol = document.getElementById('loadingOverlay');
+    if (ol) ol.remove();
+    initApp();
+  } catch (error) {
+    console.error('Error Google Sheets:', error);
+    const ol = document.getElementById('loadingOverlay');
+    if (ol) {
+      ol.innerHTML = '<div style="text-align:center;padding:32px;">' +
+        '<div style="font-size:1.1rem;font-weight:600;margin-bottom:8px;">Error al conectar con Google Sheets</div>' +
+        '<div style="font-size:.85rem;margin-bottom:20px;">' + error.message + '</div>' +
+        '<button onclick="location.reload()" style="background:white;color:#0077B6;border:none;padding:10px 24px;border-radius:8px;font-weight:600;cursor:pointer;">Reintentar</button></div>';
+    }
+  }
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', cargarDatos);
+else cargarDatos();
+
+function initApp() {
+  renderStats();
+  renderSeguimientosPendientes();
+  renderTablaVecinos(VECINOS);
+  document.getElementById('buscadorVecinos').addEventListener('input', onBuscarVecinos);
+}
+
+/* =========================================================
+ * NAVEGACIÓN
+ * =======================================================*/
+function showPage(name) {
+  document.querySelectorAll('.app-page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t => { if (t.textContent.toLowerCase().includes(name.slice(0,4))) t.classList.add('active'); });
+}
+
+/* =========================================================
+ * TOAST / MODALES GENÉRICOS
+ * =======================================================*/
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3200);
+}
+function abrirModal(id){ document.getElementById(id).classList.add('open'); }
+function cerrarModal(id){ document.getElementById(id).classList.remove('open'); }
+function closeIfOutside(e,id){ if (e.target.id === id) cerrarModal(id); }
+
+/* =========================================================
+ * HERO STATS
+ * =======================================================*/
+function renderStats() {
+  const pendientes = SEGUIMIENTOS.filter(s => s.estado === 'PENDIENTE').length;
+  const hoy = new Date().toDateString();
+  const contactosHoy = HISTORIAL.filter(h => h.fecha && new Date(h.fecha).toDateString() === hoy).length;
+  const afiliadosPJ = VECINOS.filter(v => (v.afiliadoPJ||'').toString().toLowerCase().startsWith('s')).length;
+
+}
+
+/* =========================================================
+ * SEGUIMIENTOS PENDIENTES
+ * =======================================================*/
+function renderSeguimientosPendientes() {
+  const pendientes = SEGUIMIENTOS.filter(s => s.estado === 'PENDIENTE')
+    .sort((a,b) => new Date(b.fechaCreacion) - new Date(a.fechaCreacion));
+  const cont = document.getElementById('listaSeguimientos');
+  const vacio = document.getElementById('sinSeguimientos');
+  cont.innerHTML = '';
+  if (!pendientes.length) { vacio.style.display = 'block'; return; }
+  vacio.style.display = 'none';
+  pendientes.forEach(s => {
+    const v = VECINOS.find(x => x.id === s.idVecino) || {};
+    const nombre = [v.nombre, v.apellido].filter(Boolean).join(' ') || '(Vecino no encontrado)';
+    const card = document.createElement('div');
+    card.className = 'seg-card';
+    card.dataset.segId = s.id;
+    card.innerHTML = `
+      <div class="seg-nombre">${escapeHtml(nombre)}</div>
+      <div class="seg-titulo">${escapeHtml(s.titulo)}</div>
+      <div class="seg-meta"><span>📞 ${escapeHtml(v.telefono || 'Sin teléfono')}</span><span>🕒 ${formatearFecha(s.fechaCreacion)}</span></div>
+      <div class="seg-actions">
+        <button class="btn-outline" onclick="abrirFichaVecino('${s.idVecino}')">Ver</button>
+        <button class="btn-success" onclick="abrirModalResuelto('${s.id}')">Resuelto</button>
+      </div>`;
+    cont.appendChild(card);
+  });
+}
+
+function abrirModalResuelto(idSeguimiento) {
+  idSeguimientoAResolver = idSeguimiento;
+  document.getElementById('resOperador').value = '';
+  document.getElementById('resComentario').value = '';
+  abrirModal('modalResuelto');
+}
+
+async function confirmarResuelto() {
+  const operador = document.getElementById('resOperador').value.trim();
+  const notas = document.getElementById('resComentario').value.trim();
+  if (!operador) { toast('Ingresá el nombre del compañero/a que resuelve.'); return; }
+  try {
+    const res = await postAPI({ action: 'marcarResuelto', idSeguimiento: idSeguimientoAResolver, operador, notas });
+    if (!res.ok) throw new Error(res.error || 'No se pudo resolver.');
+    const s = SEGUIMIENTOS.find(x => x.id === idSeguimientoAResolver);
+    if (s) s.estado = 'RESUELTO';
+    cerrarModal('modalResuelto');
+    toast('Seguimiento marcado como resuelto.');
+    renderSeguimientosPendientes();
+    renderStats();
+  } catch (err) {
+    toast('Error: ' + err.message);
+  }
+}
+
+/* =========================================================
+ * PESTAÑA CONTACTOS - TABLA Y BÚSQUEDA
+ * =======================================================*/
+function renderTablaVecinos(lista) {
+  const tbody = document.getElementById('tbodyVecinos');
+  const vacio = document.getElementById('sinResultados');
+  tbody.innerHTML = '';
+  const ordenada = [...lista].sort((a,b) => (a.apellido||'').localeCompare(b.apellido||''));
+  if (!ordenada.length) { vacio.style.display = 'block'; return; }
+  vacio.style.display = 'none';
+  ordenada.forEach(v => {
+   const tr = document.createElement('tr');
+    tr.onclick = () => abrirFichaVecino(v.id);
+    tr.innerHTML = `
+      <td>${escapeHtml([v.apellido, v.nombre].filter(Boolean).join(', '))}</td>
+      <td>${escapeHtml(v.telefono || '-')}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+let buscarTimer = null;
+function onBuscarVecinos() {
+  clearTimeout(buscarTimer);
+  buscarTimer = setTimeout(() => {
+    const q = normalizarTexto(document.getElementById('buscadorVecinos').value);
+    if (!q) { renderTablaVecinos(VECINOS); return; }
+    renderTablaVecinos(VECINOS.filter(v =>
+      normalizarTexto(v.nombre).includes(q) || normalizarTexto(v.apellido).includes(q) ||
+      normalizarTexto(v.dni).includes(q) || normalizarTexto(v.barrio).includes(q) ||
+      normalizarTexto(v.telefono).includes(q)
+    ));
+  }, 180);
+}
+
+/* =========================================================
+ * FICHA DE VECINO
+ * =======================================================*/
+function abrirFichaVecino(idVecino) {
+  const v = VECINOS.find(x => x.id === idVecino);
+  if (!v) { toast('Vecino no encontrado.'); return; }
+  idVecinoActivoEnFicha = idVecino;
+  document.getElementById('fichaNombreTitulo').textContent = [v.nombre, v.apellido].filter(Boolean).join(' ');
+
+  const historial = HISTORIAL.filter(h => h.idVecino === idVecino).sort((a,b) => new Date(b.fecha)-new Date(a.fecha));
+  const seguimientos = SEGUIMIENTOS.filter(s => s.idVecino === idVecino).sort((a,b) => new Date(b.fechaCreacion)-new Date(a.fechaCreacion));
+
+  const historialHtml = historial.length ? historial.map(h => `
+    <div class="hist-item">
+      <div class="hist-top"><span>${escapeHtml(h.motivo || 'Contacto')}</span><span>${formatearFecha(h.fecha)}</span></div>
+      <div class="hist-meta">Recibido por: ${escapeHtml(h.operador || '-')}${h.observaciones ? ' · ' + escapeHtml(h.observaciones) : ''}</div>
+    </div>`).join('') : '<div class="empty-state">Sin contactos registrados todavía.</div>';
+
+  const seguimientosHtml = seguimientos.length ? seguimientos.map(s => `
+    <div class="seg-item">
+      <div><div><b>${escapeHtml(s.titulo)}</b></div><div class="hist-meta">${formatearFecha(s.fechaCreacion)}</div></div>
+      <span class="estado-pill ${s.estado}">${escapeHtml(s.estado)}</span>
+    </div>`).join('') : '<div class="empty-state">Sin seguimientos registrados.</div>';
+
+
+document.getElementById('fichaBody').innerHTML = `
+    <div class="ficha-datos">
+      <div><span>DNI</span><b>${escapeHtml(v.dni || '-')}</b></div>
+      <div><span>Teléfono</span><b>${escapeHtml(v.telefono || '-')}</b></div>
+      <div><span>Dirección</span><b>${escapeHtml(v.direccion || '-')}</b></div>
+      <div><span>Barrio</span><b>${escapeHtml(v.barrio || '-')}</b></div>
+      <div><span>Circuito</span><b>${escapeHtml(v.circuito || '-')}</b></div>
+      <div><span>Comuna</span><b>${escapeHtml(v.comuna || '-')}</b></div>
+      <div><span>Nacimiento</span><b>${formatearFechaSolo(v.nacimiento)}</b></div>
+      <div><span>Afiliado PJ</span><b>${escapeHtml(v.afiliadoPJ || '-')}</b></div>
+      <div style="grid-column:1/-1;"><span>Observaciones</span><b>${escapeHtml(v.observaciones || '-')}</b></div>
+    </div>
+    <div class="ficha-tabs">
+      <button class="ficha-tab-btn active" onclick="cambiarFichaTab(this,'historial')">Historial de contactos</button>
+      <button class="ficha-tab-btn" onclick="cambiarFichaTab(this,'seguimientos')">Seguimientos</button>
+      <button class="ficha-tab-btn" onclick="cambiarFichaTab(this,'nuevo')">Actualizar datos</button>
+    </div>
+    <div class="ficha-panel active" id="fpanel-historial">${historialHtml}</div>
+    <div class="ficha-panel" id="fpanel-seguimientos">${seguimientosHtml}</div>
+    <div class="ficha-panel" id="fpanel-nuevo">
+      <div class="form-grid">
+        <div class="form-field"><label>Compañero/a que carga *</label><input type="text" id="ficha_operador"></div>
+        <div class="form-field"><label>Nombre</label><input type="text" id="ficha_nombre" value="${escapeHtml(v.nombre||'')}"></div>
+        <div class="form-field"><label>Apellido</label><input type="text" id="ficha_apellido" value="${escapeHtml(v.apellido||'')}"></div>
+        <div class="form-field"><label>DNI</label><input type="text" id="ficha_dni" value="${escapeHtml(v.dni||'')}"></div>
+        <div class="form-field"><label>Teléfono</label><input type="text" id="ficha_telefono" value="${escapeHtml(v.telefono||'')}"></div>
+        <div class="form-field"><label>Dirección</label><input type="text" id="ficha_direccion" value="${escapeHtml(v.direccion||'')}"></div>
+        <div class="form-field"><label>Barrio</label><input type="text" id="ficha_barrio" value="${escapeHtml(v.barrio||'')}"></div>
+        <div class="form-field"><label>Circuito</label><input type="text" id="ficha_circuito" value="${escapeHtml(v.circuito||'')}"></div>
+        <div class="form-field"><label>Comuna</label><input type="text" id="ficha_comuna" value="${escapeHtml(v.comuna||'')}"></div>
+        <div class="form-field"><label>Fecha Nacimiento</label><input type="date" id="ficha_nacimiento" value="${v.nacimiento || ''}"></div>
+        <div class="form-field">
+          <label>Afiliado PJ</label>
+          <select id="ficha_afiliado">
+            <option value="" ${!v.afiliadoPJ ? 'selected' : ''}>-</option>
+            <option value="Sí" ${v.afiliadoPJ === 'Sí' ? 'selected' : ''}>Sí</option>
+            <option value="No" ${v.afiliadoPJ === 'No' ? 'selected' : ''}>No</option>
+            <option value="No sabe" ${v.afiliadoPJ === 'No sabe' ? 'selected' : ''}>No sabe</option>
+          </select>
+        </div>
+        <div class="form-field full"><label>Observaciones</label><textarea id="ficha_observaciones" rows="2">${escapeHtml(v.observaciones||'')}</textarea></div>
+      </div>
+      <div class="wizard-actions">
+        <button class="btn btn-primary" id="btnGuardarFicha" onclick="guardarContactoDesdeFicha('${v.id}')">Guardar Cambios</button>
+      </div>
+    </div>`;
+  abrirModal('modalFicha');
+}
+
+
+function cambiarFichaTab(btn, tab) {
+  document.querySelectorAll('.ficha-tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.ficha-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('fpanel-' + tab).classList.add('active');
+}
+
+async function guardarContactoDesdeFicha() {
+  const operador = document.getElementById('ficha_operador')?.value.trim() || 'Sistema (Actualización)';
+
+  // Usamos 'registrarContacto' para que el backend lo reconozca
+  const payload = {
+    action: 'registrarContacto',
+    idVecinoExistente: idVecinoActivoEnFicha,
+    operador: operador,
+    nombre: document.getElementById('ficha_nombre').value.trim(),
+    apellido: document.getElementById('ficha_apellido').value.trim(),
+    dni: document.getElementById('ficha_dni').value.trim(),
+    telefono: document.getElementById('ficha_telefono').value.trim(),
+    direccion: document.getElementById('ficha_direccion').value.trim(),
+    barrio: document.getElementById('ficha_barrio').value.trim(),
+    circuito: document.getElementById('ficha_circuito').value.trim(),
+    comuna: document.getElementById('ficha_comuna').value.trim(),
+    nacimiento: document.getElementById('ficha_nacimiento').value,
+    afiliadoPJ: document.getElementById('ficha_afiliado').value,
+    observaciones: document.getElementById('ficha_observaciones').value.trim()
+  };
+
+  try {
+    const res = await postAPI(payload);
+    if (!res.ok) throw new Error(res.error || 'No se pudieron guardar los cambios.');
+
+    // 1. Actualizamos la memoria local
+    aplicarResultadoRegistro(res, payload);
+    
+    // 2. Cerramos la ficha directamente (¡SIN abrir modal de seguimiento!)
+    cerrarModal('modalFicha');
+    toast('✓ Datos actualizados correctamente.');
+
+  } catch (err) {
+    toast('Error: ' + err.message);
+  }
+}
+
+/* =========================================================
+ * WIZARD: NUEVO CONTACTO
+ * =======================================================*/
+let huboCoincidencia = false; // Variable global para recordar si hubo cruce
+
+function abrirWizardNuevoContacto() {
+  wizardState = { idVecinoExistente: null, ultimoContactoRegistrado: null };
+  huboCoincidencia = false;
+  document.getElementById('formPaso1').reset();
+  irAPaso(1);
+  abrirModal('modalNuevoContacto');
+}
+
+function irAPaso(n) {
+  document.querySelectorAll('.wizard-step').forEach(s => s.classList.remove('active'));
+  document.getElementById('paso' + n).classList.add('active');
+}
+
+function leerFormPaso1() {
+  return {
+    operador: document.getElementById('f_operador').value.trim(),
+    nombre: document.getElementById('f_nombre').value.trim(),
+    apellido: document.getElementById('f_apellido').value.trim(),
+    telefono: document.getElementById('f_telefono').value.trim(),
+    dni: document.getElementById('f_dni').value.trim(),
+    direccion: document.getElementById('f_direccion').value.trim(),
+    barrio: document.getElementById('f_barrio').value.trim(),
+    circuito: document.getElementById('f_circuito').value.trim(),
+    comuna: document.getElementById('f_comuna').value.trim(),
+    nacimiento: document.getElementById('f_nacimiento').value,
+    afiliadoPJ: document.getElementById('f_afiliado').value,
+    observaciones: document.getElementById('f_observaciones').value.trim()
+  };
+}
+
+async function submitPaso1(e) {
+  e.preventDefault();
+  const datos = leerFormPaso1();
+  if (!datos.operador || !datos.nombre || !datos.telefono) { 
+    toast('Completá los campos obligatorios: compañero/a, nombre y teléfono.'); 
+    return; 
+  }
+  
+  const btn = e.target.querySelector('button[type=submit]');
+  btn.disabled = true; 
+  btn.textContent = 'Verificando...';
+
+  try {
+    const res = await postAPI({ 
+      action: 'verificarCruce', 
+      dni: datos.dni, 
+      nombre: datos.nombre, 
+      apellido: datos.apellido, 
+      telefono: datos.telefono 
+    });
+
+    const propios = res.propios || (res.propio ? [res.propio] : []);
+    const hayCoincidencia = propios.length > 0 || !!res.externo;
+
+    if (!hayCoincidencia) {
+      // 🚀 NO hay coincidencia -> Omitimos Paso 2 y vamos directo al Paso 3
+      huboCoincidencia = false;
+      wizardState.idVecinoExistente = null;
+      prepararResumenPaso3();
+      irAPaso(3);
+    } else {
+      // ⚠️ SÍ hay coincidencia -> Vamos al Paso 2 para evaluar
+      huboCoincidencia = true;
+      renderResultadoCruce(res, datos);
+      irAPaso(2);
+    }
+
+  } catch (err) {
+    toast('Error verificando datos: ' + err.message);
+  } finally {
+    btn.disabled = false; 
+    btn.textContent = 'Continuar';
+  }
+}
+
+// Control del botón "Volver" desde el Paso 3 hacia donde corresponda
+function volverDesdePaso3() {
+  if (huboCoincidencia) {
+    irAPaso(2);
+  } else {
+    irAPaso(1);
+  }
+}
+
+function renderResultadoCruce(res, datosIngresados) {
+  const cont = document.getElementById('resultadoCruce');
+  wizardState.idVecinoExistente = null;
+
+  const propios = res.propios || (res.propio ? [res.propio] : []);
+  let html = '';
+
+  if (propios.length) {
+    html += `<div class="cruce-alert warning">⚠️Se ${propios.length === 1 ? 'encontró 1 coincidencia' : 'encontraron ' + propios.length + ' coincidencias'} en el historial de la UB</div>`;
+    propios.forEach(m => {
+      html += renderMatchBox('Vecino/a ya registrado/a', m, true);
+    });
+  }
+
+  if (res.externo) {
+    html += `<div class="cruce-alert warning">⚠️ Se encontró el DNI en el Padrón del PJ de la Comuna 5</div>`;
+    html += renderMatchBox('Datos encontrados en el Padrón PJ', res.externo, true);
+  }
+
+  if (res.errorExterno) html += `<div class="cruce-alert warning">${escapeHtml(res.errorExterno)}</div>`;
+
+  html += `<div class="wizard-actions" style="margin-top:15px;">
+    <button type="button" class="btn btn-secondary" onclick="continuarComoNuevo()">CARGAR COMO NUEVO</button>
+  </div>`;
+  
+  cont.innerHTML = html;
+}
+
+function renderMatchBox(titulo, m, conBoton) {
+  const badge = (m.matchedFields && m.matchedFields.length)
+    ? `<div style="margin-bottom:8px;"><span style="background:var(--celeste-xpale);color:var(--celeste-dark);font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:20px;">Coincide por: ${m.matchedFields.map(escapeHtml).join(', ')}</span></div>`
+    : '';
+  return `<div class="match-box"><h4>${escapeHtml(titulo)}</h4>
+    ${badge}
+    <div class="match-grid">
+      <div><span>Nombre</span>${escapeHtml([m.nombre, m.apellido].filter(Boolean).join(' ') || '-')}</div>
+      <div><span>DNI</span>${escapeHtml(m.dni || '-')}</div>
+      <div><span>Teléfono</span>${escapeHtml(m.telefono || '-')}</div>
+      <div><span>Dirección</span>${escapeHtml(m.direccion || '-')}</div>
+      <div><span>Barrio</span>${escapeHtml(m.barrio || '-')}</div>
+      <div><span>Circuito</span>${escapeHtml(m.circuito || '-')}</div>
+    </div>
+    ${conBoton ? `<div class="wizard-actions" style="margin-top:10px;">
+      <button type="button" class="btn btn-primary" onclick='confirmarMatch(${JSON.stringify(m)})'>USAR DATOS</button>
+    </div>` : ''}
+    </div>`;
+}
+
+function confirmarMatch(match) {
+  wizardState.idVecinoExistente = match.idVecino || null;
+  setSiVacio('f_apellido', match.apellido);
+  setSiVacio('f_dni', match.dni);
+  setSiVacio('f_direccion', match.direccion);
+  setSiVacio('f_barrio', match.barrio);
+  setSiVacio('f_circuito', match.circuito);
+  setSiVacio('f_comuna', match.comuna);
+  setSiVacio('f_telefono', match.telefono);
+  setSiVacio('f_observaciones', match.observaciones);
+  prepararResumenPaso3();
+  irAPaso(3);
+}
+
+function continuarComoNuevo() {
+  wizardState.idVecinoExistente = null;
+  prepararResumenPaso3();
+  irAPaso(3);
+}
+
+function setSiVacio(id, valor) {
+  const el = document.getElementById(id);
+  if (el && !el.value && valor) el.value = valor;
+}
+
+function prepararResumenPaso3() {
+  const d = leerFormPaso1();
+  const filas = [
+    ['Compañero/a', d.operador], 
+    ['Nombre completo', [d.nombre, d.apellido].filter(Boolean).join(' ')],
+    ['DNI', d.dni], 
+    ['Teléfono', d.telefono], 
+    ['Dirección', d.direccion], 
+    ['Barrio', d.barrio],
+    ['Circuito', d.circuito], 
+    ['Comuna', d.comuna], 
+    ['Afiliado PJ', d.afiliadoPJ]
+  ];
+  
+  document.getElementById('resumenPaso3').innerHTML = filas.map(([k,v]) => `<div class="fila"><span>${escapeHtml(k)}</span><span>${escapeHtml(v || '-')}</span></div>`).join('')
+    + (wizardState.idVecinoExistente ? `<div class="fila"><span>Modo</span><span>Actualiza vecino existente</span></div>` : `<div class="fila"><span>Modo</span><span>Nuevo registro</span></div>`);
+}
+
+async function registrarContactoWizard() {
+  const datos = leerFormPaso1();
+  const payload = Object.assign({ action: 'registrarContacto', idVecinoExistente: wizardState.idVecinoExistente || null }, datos);
+  const btn = document.getElementById('btnRegistrarContacto');
+  btn.disabled = true; 
+  btn.textContent = 'Guardando...';
+  
+  try {
+    const res = await postAPI(payload);
+    if (!res.ok) throw new Error(res.error || 'No se pudo registrar.');
+    aplicarResultadoRegistro(res, payload);
+    cerrarModal('modalNuevoContacto');
+    wizardState.ultimoContactoRegistrado = { idVecino: res.idVecino, operador: datos.operador };
+    abrirModal('modalPreguntaSeguimiento');
+  } catch (err) {
+    toast('Error: ' + err.message);
+  } finally {
+    btn.disabled = false; 
+    btn.textContent = 'Registrar Contacto';
+  }
+}
+
+function aplicarResultadoRegistro(res, payload) {
+  let v = VECINOS.find(x => x.id === res.idVecino);
+  if (!v) {
+    v = { id: res.idVecino, nombre: '', apellido: '', dni: '', direccion: '', circuito: '', barrio: '', comuna: '', nacimiento: '', telefono: '', afiliadoPJ: '', observaciones: '' };
+    VECINOS.push(v);
+  }
+  ['nombre','apellido','dni','direccion','circuito','barrio','comuna','nacimiento','telefono','afiliadoPJ','observaciones'].forEach(k => {
+    if (payload[k]) v[k] = payload[k];
+  });
+  if (res.nuevoHistorial) HISTORIAL.push(res.nuevoHistorial);
+  if (res.nuevoSeguimiento) SEGUIMIENTOS.push(res.nuevoSeguimiento);
+  renderStats();
+  renderTablaVecinos(VECINOS);
+  renderSeguimientosPendientes();
+}
+
+/* =========================================================
+ * PREGUNTA DE SEGUIMIENTO AL FINAL DEL REGISTRO
+ * =======================================================*/
+function cerrarPreguntaSeguimiento(quiereSeguimiento) {
+  cerrarModal('modalPreguntaSeguimiento');
+  if (!quiereSeguimiento) { toast('✓ Contacto registrado con éxito.'); return; }
+  document.getElementById('tituloSeguimientoInput').value = '';
+  abrirModal('modalTituloSeguimiento');
+}
+
+async function guardarNuevoSeguimiento() {
+  const titulo = document.getElementById('tituloSeguimientoInput').value.trim();
+  if (!titulo) { toast('Ingresá un título para el seguimiento.'); return; }
+  if (!wizardState.ultimoContactoRegistrado) { toast('No se encontró el contacto registrado.'); return; }
+  try {
+    const res = await postAPI({ action: 'crearSeguimiento', idVecino: wizardState.ultimoContactoRegistrado.idVecino, titulo });
+    if (!res.ok) throw new Error(res.error || 'No se pudo crear el seguimiento.');
+    SEGUIMIENTOS.push({ id: res.idSeguimiento, idVecino: wizardState.ultimoContactoRegistrado.idVecino, fechaCreacion: res.fechaCreacion, titulo, estado: 'PENDIENTE' });
+    cerrarModal('modalTituloSeguimiento');
+    toast('✓ Seguimiento creado.');
+    renderSeguimientosPendientes();
+    renderStats();
+  } catch (err) {
+    toast('Error: ' + err.message);
+  }
+}
+
+/* =========================================================
+ * API HELPER
+ * =======================================================*/
+async function postAPI(payload) {
+  const res = await fetch(SHEETS_URL, { method: 'POST', body: JSON.stringify(payload) });
+  return await res.json();
+}
+
+/* =========================================================
+ * UTILS
+ * =======================================================*/
+function normalizarTexto(str) {
+  if (!str) return '';
+  return str.toString().trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+}
+function escapeHtml(str) {
+  if (str === undefined || str === null) return '';
+  return str.toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function formatearFecha(fechaISO) {
+  if (!fechaISO) return '-';
+  const d = new Date(fechaISO);
+  if (isNaN(d)) return fechaISO.toString();
+  const dd = String(d.getDate()).padStart(2,'0');
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const hh = String(d.getHours()).padStart(2,'0');
+  const mi = String(d.getMinutes()).padStart(2,'0');
+  return `${dd}/${mm}/${d.getFullYear()} ${hh}:${mi}`;
+}
+function formatearFechaSolo(fecha) {
+  if (!fecha) return '-';
+  const d = new Date(fecha);
+  if (isNaN(d)) return fecha.toString();
+  const dd = String(d.getDate()).padStart(2,'0');
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  return `${dd}/${mm}/${d.getFullYear()}`;
+}
+</script>
+</body>
+</html>
