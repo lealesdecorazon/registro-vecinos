@@ -243,8 +243,8 @@
         <form id="formPaso1" onsubmit="submitPaso1(event)">
           <div class="form-grid">
             <div class="form-field"><label>Compañero/a que carga *</label><input type="text" id="f_operador" required></div>
-            <div class="form-field"><label>Nombre del vecino *</label><input type="text" id="f_nombre" required></div>
-            <div class="form-field"><label>Teléfono de contacto *</label><input type="text" id="f_telefono" required></div>
+            <div class="form-field"><label>Nombre del vecino/a</label><input type="text" id="f_nombre"></div>
+            <div class="form-field"><label>Teléfono de contacto</label><input type="text" id="f_telefono"></div>
             <div class="form-field"><label>Apellido</label><input type="text" id="f_apellido"></div>
             <div class="form-field"><label>DNI</label><input type="text" id="f_dni"></div>
             <div class="form-field"><label>Dirección</label><input type="text" id="f_direccion"></div>
@@ -252,10 +252,6 @@
             <div class="form-field"><label>Circuito</label><input type="text" id="f_circuito"></div>
             <div class="form-field"><label>Comuna</label><input type="text" id="f_comuna"></div>
             <div class="form-field"><label>Fecha de nacimiento</label><input type="date" id="f_nacimiento"></div>
-            <div class="form-field">
-              <label>Afiliado PJ</label>
-              <select id="f_afiliado"><option value="">-</option><option value="Sí">Sí</option><option value="No">No</option><option value="No sabe">No sabe</option></select>
-            </div>
             <div class="form-field full"><label>Observaciones</label><textarea id="f_observaciones" rows="2"></textarea></div>
           </div>
           <div class="wizard-actions"><button type="submit" class="btn btn-primary">Continuar</button></div>
@@ -655,8 +651,7 @@ function leerFormPaso1() {
     barrio: document.getElementById('f_barrio').value.trim(),
     circuito: document.getElementById('f_circuito').value.trim(),
     comuna: document.getElementById('f_comuna').value.trim(),
-    nacimiento: document.getElementById('f_nacimiento').value,
-    afiliadoPJ: document.getElementById('f_afiliado').value,
+    nacimiento: document.getElementById('f_nacimiento').value,    
     observaciones: document.getElementById('f_observaciones').value.trim()
   };
 }
@@ -664,8 +659,8 @@ function leerFormPaso1() {
 async function submitPaso1(e) {
   e.preventDefault();
   const datos = leerFormPaso1();
-  if (!datos.operador || !datos.nombre || !datos.telefono) { 
-    toast('Completá los campos obligatorios: compañero/a, nombre y teléfono.'); 
+  if (!datos.operador) { 
+    toast('Completá los campos obligatorios: compañero/a'); 
     return; 
   }
   
@@ -765,6 +760,7 @@ function renderMatchBox(titulo, m, conBoton) {
 
 function confirmarMatch(match) {
   wizardState.idVecinoExistente = match.idVecino || null;
+  setSiVacio('f_nombre', match.nombre);
   setSiVacio('f_apellido', match.apellido);
   setSiVacio('f_dni', match.dni);
   setSiVacio('f_direccion', match.direccion);
